@@ -1,6 +1,5 @@
 #us-west-1
 #us-west-2
-
 #ca-central-1
 #EU
 #eu-west-2

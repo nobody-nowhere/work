@@ -39,7 +39,7 @@ KEYS = []
 SPEEDS = []
 TIMES = []
 
-NEWBUCKNAME = 'ReIsuBTeST-' + str(int(random()*1000))
+NEWBUCKNAME = 'reisubtest-' + str(int(random()*1000))
 S3RES.create_bucket(
     Bucket=NEWBUCKNAME,
     # CreateBucketConfiguration={'LocationConstraint': location})
@@ -50,7 +50,7 @@ S3RES.Bucket(NEWBUCKNAME).put_object(Key='Test1', Body=DATA)
 end = time.time()
 
 for location in LOCATIONS:
-    newBuckName = 'ReIsuBTeST-' + str(int(random()*1000))
+    newBuckName = 'reisubtest-' + str(int(random()*1000))
     BUCKETS.append(newBuckName)
     print(LOCATIONS)
     print(location)
