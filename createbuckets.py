@@ -3,13 +3,13 @@
 import os
 import timeit
 import time
-import pprint
+from pprint import pprint
 
 from random import random
 import boto3
 
 def sizeof_fmt(num, suffix='B'):
-    for unit in ['','Ki','Mi','Gi','Ti','Pi','Ei','Zi']:
+    for unit in ['', 'Ki', 'Mi', 'Gi', 'Ti', 'Pi', 'Ei', 'Zi']:
         if abs(num) < 1024.0:
             return "%3.1f%s%s" % (num, unit, suffix)
         num /= 1024.0
@@ -25,7 +25,6 @@ os.system('dd if=/dev/urandom bs=1M count=1 iflag=fullblock of=' + RANDOMFILE2 +
 RANDOMFILE3 = '/tmp/tmpfile{}'.format(int(random()*1000))
 os.system('dd if=/dev/urandom bs=10M count=1 iflag=fullblock of=' + RANDOMFILE3 + ' &> /dev/null')
 
-global S3RES
 S3RES = boto3.resource('s3')
 
 try:
@@ -40,27 +39,27 @@ with open('locations.txt', 'r') as f:
     for line in f:
         if line.find('#') == -1:
             LOCATIONS = LOCATIONS + (line.strip('\n'),)
-print(LOCATIONS)
+pprint(LOCATIONS)
 
-SIZES = [102400, 1048576, 10485760]
-BUCKETS = {} 
+BUCKETS = []
 FILES = []
 
 SPEEDS = []
+SIZES = []
 TIMES = []
 
 #Deal with us-east-1
-for SIZE in SIZES:
-    NEWBUCKNAME = 'reisubtest-' + str(int(random()*1000))
-    BUCKETS['Name'].append(NEWBUCKNAME)
-    S3RES.create_bucket(
-        Bucket=NEWBUCKNAME,
-        # CreateBucketConfiguration={'LocationConstraint': location})
-        )
-    start = time.time()
-    S3RES.Bucket(NEWBUCKNAME).put_object(Key='Test1', Body=open(RANDOMFILE1, 'rb'))
-    end = time.time()
-    TIMES.append(end-start)
+NEWBUCKNAME = 'reisubtest-' + str(int(random()*1000))
+BUCKETS.append(NEWBUCKNAME)
+S3RES.create_bucket(
+    Bucket=NEWBUCKNAME,
+    # CreateBucketConfiguration={'LocationConstraint': location})
+    )
+START = time.time()
+S3RES.Bucket(NEWBUCKNAME).put_object(Key='Test1', Body=open(RANDOMFILE1, 'rb'))
+END = time.time()
+TIMES.append(END-START)
+SIZES.append(os.stat(RANDOMFILE1).st_size)
 
 for location in LOCATIONS:
     #Deal with the others
@@ -75,6 +74,7 @@ for location in LOCATIONS:
         S3RES.Bucket(newBuckName).put_object(Key='Test1', Body=open(RANDOMFILE1, 'rb'))
         end = time.time()
         TIMES.append(end-start)
+        SIZES.append(os.stat(RANDOMFILE1).st_size)
     # S3RES.delete_bucket(
     #     Bucket=newBuckname)
     # S3RES.Bucket(newBuckname).put_object(Key='Test1', Body=data)
@@ -84,11 +84,10 @@ for location in LOCATIONS:
     # data = open(RANDOMFILE3, 'rb')
     # timeit.timeit('''S3RES.Bucket(newBuckname).put_object(Key='Test3', Body=data)''', number=1)
 
-i=0
-for time in TIMES:
+i = 0
+for i in range(len(TIMES)):
     SPEEDS.append(sizeof_fmt(SIZES[i] / TIMES[i]) + '/s')
-    i+=1
-print(SPEEDS)
+pprint(SPEEDS)
 
 for bucket in S3RES.buckets.all():
     if bucket.name.find('reisubtest') != -1:
